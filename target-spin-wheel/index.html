@@ -1,1 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Target Pharmacy | Spin & Save</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<header>
+  <img src="logo.png" alt="Target Pharmacy Logo" class="logo">
+  <h1>Spin & Save</h1>
+  <p>Exclusive Discounts on Your Health Essentials</p>
+</header>
+
+<div class="container">
+
+  <div class="pointer"></div>
+
+  <div id="wheel">
+    <div class="segment">5%</div>
+    <div class="segment">10%</div>
+    <div class="segment">15%</div>
+  </div>
+
+  <button id="spinBtn">Spin the Wheel</button>
+
+</div>
+
+<!-- Modal -->
+<div id="resultModal">
+  <div class="modal-content">
+    <h2 id="resultText"></h2>
+    <p>Your Code: <strong id="coupon"></strong></p>
+    <button onclick="copyCode()">Copy Code</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
