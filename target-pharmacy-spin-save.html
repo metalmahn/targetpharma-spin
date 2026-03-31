@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target Pharmacy — Spin & Save</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #CC0000;
+    --red-dark: #990000;
+    --red-light: #FF3333;
+    --cream: #FFF8F5;
+    --gray: #f0ece8;
+    --text: #1a1a1a;
+    --muted: #888;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(204,0,0,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 1;
+    background: var(--red);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(204,0,0,0.25);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .logo-circle {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+  }
+
+  .logo-circle::after {
+    content: '';
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: #fff;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 48px 24px 32px;
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 88px);
+    color: var(--text);
+    line-height: 0.9;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--red); }
+
+  .hero p {
+    font-size: 17px;
+    color: #555;
+    max-width: 400px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+  }
+
+  /* ── WHEEL SECTION ── */
+  .wheel-section {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px 60px;
+  }
+
+  .wheel-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 36px 28px 32px;
+    box-shadow: 0 4px 40px rgba(204,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .wheel-wrap {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 28px;
+  }
+
+  .pointer-wrap {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .pointer-arrow {
+    width: 0; height: 0;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 24px solid var(--red);
+    filter: drop-shadow(0 2px 4px rgba(204,0,0,0.4));
+  }
+
+  #canvas {
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px var(--red), 0 0 0 10px #fff, 0 0 0 14px #f0e0e0;
+    display: block;
+  }
+
+  .spin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 4px 18px rgba(204,0,0,0.35);
+    letter-spacing: 0.3px;
+  }
+
+  .spin-btn:hover { background: var(--red-dark); box-shadow: 0 6px 24px rgba(204,0,0,0.45); transform: translateY(-1px); }
+  .spin-btn:active { transform: scale(0.97); }
+  .spin-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+
+  .spin-icon { font-size: 18px; display: inline-block; }
+
+  .used-note {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── TIERS ── */
+  .tiers {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  .tiers h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .tier-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1.5px solid #f0e0e0;
+  }
+
+  .tier-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .tier-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tier-prob {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .tier-bar-wrap {
+    width: 90px;
+    height: 6px;
+    background: #f0e0e0;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .tier-bar {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--red);
+    transition: width 0.6s ease;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 20px 24px 40px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid #e8e0dc;
+    line-height: 1.8;
+  }
+
+  /* ── RESULT OVERLAY ── */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+
+  #overlay.show { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 24px;
+    padding: 36px 28px 28px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-emoji { font-size: 40px; margin-bottom: 10px; }
+  .modal-subtitle { font-size: 13px; color: var(--muted); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .modal-disc { font-family: 'Bebas Neue', sans-serif; font-size: 64px; color: var(--red); line-height: 1; margin-bottom: 4px; }
+  .modal-label { font-size: 15px; color: #555; margin-bottom: 20px; }
+
+  .code-row {
+    background: var(--cream);
+    border: 1.5px dashed #ddd;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .code-text {
+    font-family: 'DM Sans', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+
+  .copy-btn {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover { background: var(--red-dark); }
+
+  .modal-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* confetti */
+  .confetti-piece {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-circle"></div>
+    <div>
+      <span class="logo-text">Target</span>
+      <span class="logo-sub">Pharmacy</span>
+    </div>
+  </div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:1px;text-transform:uppercase;">Limited offer</div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">One spin per customer</div>
+  <h1>Spin &amp;<br><span>Save</span></h1>
+  <p>Try your luck for an exclusive discount on your next Target Pharmacy purchase.</p>
+</section>
+
+<section class="wheel-section">
+  <div class="wheel-card">
+    <div class="wheel-wrap">
+      <div class="pointer-wrap"><div class="pointer-arrow"></div></div>
+      <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+      <span class="spin-icon">⟳</span> Spin the wheel
+    </button>
+    <p class="used-note" id="usedNote" style="display:none;">You've already claimed your discount today.</p>
+  </div>
+</section>
+
+<section class="tiers">
+  <h2>Prize Tiers</h2>
+  <div class="tier-row">
+    <div class="tier-label"><div class="tier-dot" style="background:#CC0000"></div>5% off</div>
+    <div class="tier-bar-wrap"><div class="tier-bar" style="width:80%"></div></div>
+    <div class="tier-prob">80%</div>
+  </div>
+  <div class="tier-row">
+    <div class="tier-label"><div class="tier-dot" style="background:#388E3C"></div>10% off</div>
+    <div class="tier-bar-wrap"><div class="tier-bar" style="width:15%"></div></div>
+    <div class="tier-prob">15%</div>
+  </div>
+  <div class="tier-row">
+    <div class="tier-label"><div class="tier-dot" style="background:#1565C0"></div>15% off</div>
+    <div class="tier-bar-wrap"><div class="tier-bar" style="width:5%"></div></div>
+    <div class="tier-prob">5%</div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Target Corporation. Offer valid for one use per customer.<br>
+  Discount applied at checkout on pharmacy purchases. Cannot be combined with other offers.
+</footer>
+
+<!-- Result Modal -->
+<div id="overlay">
+  <div class="modal">
+    <div class="modal-emoji">🎉</div>
+    <div class="modal-subtitle">You won</div>
+    <div class="modal-disc" id="discVal"></div>
+    <div class="modal-label">off your pharmacy purchase</div>
+    <div class="code-row">
+      <span class="code-text" id="codeBox"></span>
+      <button class="copy-btn" onclick="copyCode()">Copy</button>
+    </div>
+    <p class="modal-note">Use this code at the Target Pharmacy checkout.<br>Valid for 30 days from today.</p>
+  </div>
+</div>
+
+<script>
+const segments = [
+  { label: "5% OFF",  pct: "5",  color: "#CC0000", prob: 0.80 },
+  { label: "10% OFF", pct: "10", color: "#388E3C", prob: 0.15 },
+  { label: "15% OFF", pct: "15", color: "#1565C0", prob: 0.05 },
+];
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const W = 300, cx = W/2, cy = W/2, r = W/2 - 5;
+const arc = (2 * Math.PI) / segments.length;
+let currentRotation = -Math.PI / 2;
+
+function drawWheel(rot) {
+  ctx.clearRect(0, 0, W, W);
+  segments.forEach((seg, i) => {
+    const start = rot + i * arc;
+    const end = start + arc;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "700 17px 'DM Sans', sans-serif";
+    ctx.fillText(seg.label, r - 16, 6);
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+  ctx.strokeStyle = "#CC0000";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
+  ctx.fillStyle = "#CC0000";
+  ctx.fill();
+}
+
+drawWheel(currentRotation);
+
+function pickSegment() {
+  const rand = Math.random();
+  if (rand < 0.80) return 0;
+  else if (rand < 0.95) return 1;
+  else return 2;
+}
+
+let spinning = false;
+
+function spinWheel() {
+  if (spinning) return;
+  if (localStorage.getItem("tgt_pharmacy_spun")) {
+    document.getElementById("usedNote").style.display = "block";
+    document.getElementById("spinBtn").disabled = true;
+    return;
+  }
+  spinning = true;
+  document.getElementById("spinBtn").disabled = true;
+
+  const segIdx = pickSegment();
+  const segMidAngle = -Math.PI/2 + (segIdx + 0.5) * arc;
+  const spins = 6 * 2 * Math.PI;
+  const endRot = currentRotation + spins + (currentRotation - segMidAngle - currentRotation + 4 * Math.PI * 2) % (2 * Math.PI);
+
+  const startRot = currentRotation;
+  const totalDelta = spins + ((2 * Math.PI) - ((segMidAngle - (-Math.PI/2) + 2*Math.PI) % (2*Math.PI)));
+  const finalRot = startRot + totalDelta;
+
+  const start = performance.now();
+  const duration = 4200;
+
+  function ease(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animate(now) {
+    const t = Math.min((now - start) / duration, 1);
+    currentRotation = startRot + (finalRot - startRot) * ease(t);
+    drawWheel(currentRotation);
+    if (t < 1) { requestAnimationFrame(animate); }
+    else {
+      spinning = false;
+      localStorage.setItem("tgt_pharmacy_spun", "1");
+      setTimeout(() => showResult(segments[segIdx]), 500);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showResult(seg) {
+  document.getElementById("discVal").textContent = seg.label;
+  const code = "TGT" + seg.pct + "RX-" + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById("codeBox").textContent = code;
+  document.getElementById("overlay").classList.add("show");
+  launchConfetti();
+}
+
+function copyCode() {
+  const code = document.getElementById("codeBox").textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector(".copy-btn");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 2000);
+  });
+}
+
+document.getElementById("overlay").addEventListener("click", function(e) {
+  if (e.target === this) this.classList.remove("show");
+});
+
+function launchConfetti() {
+  const colors = ["#CC0000","#388E3C","#1565C0","#F57C00","#ffffff","#FFC0C0"];
+  for (let i = 0; i < 100; i++) {
+    const d = document.createElement("div");
+    d.className = "confetti-piece";
+    const size = 5 + Math.random() * 7;
+    const isCircle = Math.random() > 0.5;
+    d.style.cssText = `
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      top:-12px; left:${Math.random()*100}vw;
+      border-radius:${isCircle ? '50%' : '2px'};
+      transform: rotate(${Math.random()*360}deg);
+    `;
+    document.body.appendChild(d);
+    let top = -12;
+    const vel = 2.5 + Math.random() * 4;
+    const drift = (Math.random() - 0.5) * 3;
+    const fall = setInterval(() => {
+      top += vel;
+      d.style.top = top + "px";
+      d.style.left = (parseFloat(d.style.left) + drift) + "px";
+      if (top > window.innerHeight + 20) { clearInterval(fall); d.remove(); }
+    }, 16);
+  }
+}
+
+if (localStorage.getItem("tgt_pharmacy_spun")) {
+  document.getElementById("spinBtn").disabled = true;
+  document.getElementById("usedNote").style.display = "block";
+}
+</script>
+</body>
+</html>
